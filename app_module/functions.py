@@ -21,6 +21,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 # import seaborn library for data visualization
 import seaborn as sns
+import io
 # import warnings library to manage warning messages
 import warnings
 
