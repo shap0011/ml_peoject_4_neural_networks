@@ -11,6 +11,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+# import Streamlit for building web app
+import streamlit as st
 #import numpy as np for numerical computing
 import numpy as np
 # import pandas for data manipulation
@@ -24,3 +26,11 @@ import warnings
 
 import warnings
 warnings.filterwarnings("ignore")
+
+# Load dataset
+def load_data(filepath):
+    logging.info(f"Loading data from {filepath}")
+    # load the dataset from a CSV file
+    df = pd.read_csv(filepath)
+    logging.info(f"Data loaded successfully with shape {df.shape}")
+    return df
