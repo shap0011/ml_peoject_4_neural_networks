@@ -38,10 +38,36 @@ try:
     subheader_color = "#000"  # yellow color
 
     # set the title of the Streamlit app
-    st.markdown(f"<h1 style='color: {header_color};'>Project 4. Classification Algorithms</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color: {header_color};'>Project 4. Neural Networks</h1>", unsafe_allow_html=True)
 
     # add subheader
-    st.markdown(f"<h2 style='color: {subheader_color};'>Loan Eligibility Prediction model</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h2 style='color: {subheader_color};'>Predicting Chances of Admission at UCLA</h2>", unsafe_allow_html=True)
+    
+    # add subheader
+    st.markdown("""
+                ### Project Scope:
+                
+                The world is developing rapidly, and continuously looking for the best knowledge and experience among people. 
+                This motivates people all around the world to stand out in their jobs and look for higher degrees that can help 
+                them in improving their skills and knowledge. As a result, the number of students applying for Master's programs 
+                has increased substantially.
+
+                The current admission dataset was created for the prediction of admissions into the University of California, 
+                Los Angeles (UCLA). It was built to help students in shortlisting universities based on their profiles. 
+                The predicted output gives them a fair idea about their chances of getting accepted.
+
+                **Your Role:**
+
+                Build a classification model using **Neural Networks** to predict a student's chance of admission into UCLA.
+
+                **Specifics:**
+
+                - Target variable: Admit_Chance
+                - Machine Learning task: Classification model
+                - Input variables: Refer to data dictionary below
+                - Success Criteria: Accuracy of 90% and above                
+                """)
+
 
     # load the dataset from a CSV file located in the 'data' folder
     df = func.load_data('data/admission.csv')
