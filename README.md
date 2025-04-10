@@ -97,15 +97,15 @@ The dataset contains the following features:
     - Logs all errors and important messages.
 
 ## Key Learning Outcomes
-- Building a classification neural network with MLPClassifier.
+- Building a **classification neural network** with **MLPClassifier**.
 
-- Understanding the full ML workflow: preprocessing, modeling, evaluation.
+- Understanding the full **ML workflow:** preprocessing, modeling, evaluation.
 
-- Importance of data scaling and avoiding data leakage.
+- Importance of **data scaling** and **avoiding data leakage**.
 
-- Capturing and displaying real-time training logs inside Streamlit.
+- **Capturing and displaying** real-time training logs inside Streamlit.
 
-- Implementing robust error handling and debugging practices.
+- Implementing **robust error handling** and **debugging** practices.
 
 ## How to Run the App Locally
 
