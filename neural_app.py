@@ -99,8 +99,14 @@ try:
     # add subheader
     st.markdown(f"<h3 style='color: {subheader_color};'>Loading the libraries and the dataset</h3>", unsafe_allow_html=True)
 
-    # load the dataset from a CSV file located in the 'data' folder
-    data = func.load_data('data/admission.csv')
+    # load the dataset from a CSV file located in the 'data' folder  
+    try:
+        data = func.load_data('data/admission.csv')
+    except Exception as e:
+        logging.error(f"Error loading data: {e}", exc_info=True)
+        st.error("Failed to load the dataset. Please check the file path or format.")
+        st.stop()
+
 
     st.write(f"The first five rows of the dataset")
     
@@ -418,9 +424,6 @@ try:
                 """)
         
     st.write("Let's build a feed forward neural network with 2 hidden layers. Remember, always start small.")
-    # import io
-    # import contextlib
-    # from sklearn.neural_network import MLPClassifier
 
     # Add subheader
     st.markdown(f"<h3 style='color: {subheader_color};'>Training the model</h3>", unsafe_allow_html=True)
@@ -431,27 +434,33 @@ try:
 
     # Train the model and capture the training output
     with contextlib.redirect_stdout(buffer):
-        MLP = MLPClassifier(
-            hidden_layer_sizes=(3, 3),
-            batch_size=50,
-            max_iter=200,
-            random_state=123,
-            verbose=True    
-        )
-        MLP.fit(xtrain_scaled, ytrain)
-
-    # Get the captured training output
-    training_log = buffer.getvalue()
-
-    # Display the training log in Streamlit
-    st.code(training_log, language="text")
+        try:
+            buffer = io.StringIO()
+            with contextlib.redirect_stdout(buffer):
+                MLP = MLPClassifier(hidden_layer_sizes=(3, 3), batch_size=50, max_iter=200, random_state=123, verbose=True)
+                MLP.fit(xtrain_scaled, ytrain)
+            # Get the captured training output
+            training_log = buffer.getvalue()
+            # Display the training log in Streamlit
+            st.code(training_log, language="text")
+        except Exception as e:
+            logging.error(f"Error during model training: {e}", exc_info=True)
+            st.error("Failed to train the model. Please check the input data or model parameters.")
+            st.stop()
     
     #-------------------------------
     
     st.write("Make predictions on train and check accuracy of the model")
     
     # make predictions on train
-    ypred_train = MLP.predict(xtrain_scaled)
+    try:
+        ypred = MLP.predict(xtest_scaled)
+    except Exception as e:
+        logging.error(f"Error during prediction: {e}", exc_info=True)
+        st.error("Prediction failed. Please retrain or check the model.")
+        st.stop()
+
+    
     # check accuracy of the model
     model_train_ac = accuracy_score(ytrain, ypred_train)
     st.write(f"Accuracy of the train model: `{model_train_ac}`")
