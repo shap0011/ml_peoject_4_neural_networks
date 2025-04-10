@@ -30,6 +30,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 # import the model
 from sklearn.neural_network import MLPClassifier
+import contextlib
 # import evaluation metrics
 from sklearn.metrics import confusion_matrix, accuracy_score
 
@@ -409,6 +410,38 @@ try:
         "Perform scaling on the numerical variables separately for train and test sets. "
         "We will use `.fit()` to calculate the mean and standard deviation, and `.transform()` to apply the scaling."
     )
+    
+    #-------------------------------
+
+    # Add a subheader
+    st.subheader("Fitting the Scaler (MinMaxScaler)")
+
+    # Initialize and fit the scaler
+    scaler = MinMaxScaler()
+    scaler.fit(xtrain)
+
+    # Get minimum and maximum values calculated by the scaler
+    data_min = scaler.data_min_
+    data_max = scaler.data_max_
+
+    # Create a nice message
+    scaler_message = f"""
+    Scaler fitted successfully!
+
+    **Features:**
+    - {', '.join(xtrain.columns)}
+
+    **Minimum Values (Before Scaling):**
+    - {', '.join(map(str, data_min))}
+
+    **Maximum Values (Before Scaling):**
+    - {', '.join(map(str, data_max))}
+    """
+
+    # Display the message in Streamlit
+    st.info(scaler_message)
+    
+    #------------------------------- 
 
     # Initialize the scaler
     scaler = MinMaxScaler()
@@ -464,33 +497,171 @@ try:
     st.subheader("Distribution of GRE and TOEFL Scores (Before and After Scaling)")
 
     # Create a 2x2 grid of plots
-    fig, axes = plt.subplots(2, 2, figsize=(8, 6))  # smaller figure
+    fig, axes = plt.subplots(2, 2, figsize=(4, 3)) 
 
     # Top-left: Original GRE Score
     sns.histplot(data['GRE_Score'], kde=True, ax=axes[0, 0])
-    axes[0, 0].set_title("Original GRE Score", fontsize=8)
-    axes[0, 0].tick_params(axis='both', labelsize=6)
+    axes[0, 0].set_title("Original GRE Score", fontsize=6)
+    axes[0, 0].set_xlabel("GRE_Score", fontsize=4)   
+    axes[0, 0].set_ylabel("Count", fontsize=4)        
+    axes[0, 0].tick_params(axis='both', labelsize=3)  
 
-    # Top-right: Scaled GRE Score (first feature in xtrain)
+    # Top-right: Scaled GRE Score
     sns.histplot(xtrain.iloc[:, 0], kde=True, ax=axes[0, 1])
+    axes[0, 1].set_title("Scaled GRE Score", fontsize=6)
+    axes[0, 1].set_xlabel("GRE_Score", fontsize=4)
+    axes[0, 1].set_ylabel("Count", fontsize=4)
+    axes[0, 1].tick_params(axis='both', labelsize=4)
 
     # Bottom-left: Original TOEFL Score
     sns.histplot(data['TOEFL_Score'], kde=True, ax=axes[1, 0])
-    axes[1, 0].set_title("Original TOEFL Score", fontsize=8)
-    axes[1, 0].tick_params(axis='both', labelsize=6)
+    axes[1, 0].set_title("Original TOEFL Score", fontsize=6)
+    axes[1, 0].set_xlabel("TOEFL_Score", fontsize=4)
+    axes[1, 0].set_ylabel("Count", fontsize=4)
+    axes[1, 0].tick_params(axis='both', labelsize=4)
 
-    # Bottom-right: Scaled TOEFL Score (second feature in xtrain)
+    # Bottom-right: Scaled TOEFL Score
     sns.histplot(xtrain.iloc[:, 1], kde=True, ax=axes[1, 1])
+    axes[1, 1].set_title("Scaled TOEFL Score", fontsize=6)
+    axes[1, 1].set_xlabel("TOEFL_Score", fontsize=4)
+    axes[1, 1].set_ylabel("Count", fontsize=4)
+    axes[1, 1].tick_params(axis='both', labelsize=4)
 
     # Adjust layout to avoid overlap
     plt.tight_layout()
 
     # Display the plot in Streamlit
-    st.pyplot(fig)
+    st.pyplot(fig, use_container_width=False)
 
+    #---------------------------
+    
+    # Scaling Numerical Variables
+    st.markdown(f"<h3 style='color: {subheader_color};'>Neural Network Architecture</h3>", unsafe_allow_html=True)
+    
+    st.markdown("""
+                In neural networks, there are so many hyper-parameters that you can play around with and tune the network to get the best results. Some of them are -
+
+                1. Number of hidden layers
+                2. Number of neurons in each hidden layer
+                3. Activation functions in hidden layers
+                4. Batch size
+                5. Learning rate
+                6. Dropout
+                """)
+        
+    st.write("Let's build a feed forward neural network with 2 hidden layers. Remember, always start small.")
+    # import io
+    # import contextlib
+    # from sklearn.neural_network import MLPClassifier
+
+    # Add subheader
+    st.markdown(f"<h3 style='color: {subheader_color};'>Training the model</h3>", unsafe_allow_html=True)
+    st.write("Feedforward Neural Network Training (MLP Classifier)")
+
+    # Create a string buffer to capture output
+    buffer = io.StringIO()
+
+    # Train the model and capture the training output
+    with contextlib.redirect_stdout(buffer):
+        MLP = MLPClassifier(
+            hidden_layer_sizes=(3, 3),
+            batch_size=50,
+            max_iter=200,
+            random_state=123,
+            verbose=True    # <<< IMPORTANT
+        )
+        MLP.fit(xtrain_scaled, ytrain)
+
+    # Get the captured training output
+    training_log = buffer.getvalue()
+
+    # Display the training log in Streamlit
+    st.code(training_log, language="text")
+    
+    #-------------------------------
+    
+    st.write("Make predictions on train and check accuracy of the model")
+    
+    # make predictions on train
+    ypred_train = MLP.predict(xtrain_scaled)
+    # check accuracy of the model
+    model_train_ac = accuracy_score(ytrain, ypred_train)
+    st.write(f"Accuracy of the train model: `{model_train_ac}`")
+    
+    #---------------------------------------
+    
+    st.write("Make predictions on test and check accuracy of the model")
+    # make Predictions
+    ypred = MLP.predict(xtest_scaled)
+    # check accuracy of the model
+    model_test_ac = accuracy_score(ytest, ypred)
+    st.write(f"Accuracy of the test model: `{model_test_ac}`")
+    
+    #----------------------------------
+
+    # Calculate the confusion matrix
+    cm = confusion_matrix(ytest, ypred)
+
+    # Display it as a table
+    st.subheader("Confusion Matrix (Table)")
+    st.dataframe(pd.DataFrame(cm), use_container_width=False)
     
     
-       
+    # Calculate the confusion matrix
+    cm = confusion_matrix(ytest, ypred)
+
+    # Create a heatmap
+    st.subheader("Confusion Matrix (Heatmap)")
+
+    fig, ax = plt.subplots(figsize=(2.4, 2))  # Small figure
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, ax=ax)
+
+    ax.set_xlabel('Predicted Labels', fontsize=6)
+    ax.set_ylabel('True Labels', fontsize=6)
+    ax.set_title('Confusion Matrix', fontsize=8)
+    ax.tick_params(axis='both', labelsize=5)
+
+    # Display the heatmap in Streamlit
+    st.pyplot(fig, use_container_width=False)
+    
+    #----------------------------------
+    
+    # Plotting loss curve
+    # Add a subheader
+    st.markdown(f"<h3 style='color: {subheader_color};'>Loss Curve During Neural Network Training</h3>", unsafe_allow_html=True)
+
+    # Extract the loss values from the trained model
+    loss_values = MLP.loss_curve_
+
+    # Create a figure
+    fig, ax = plt.subplots(figsize=(5, 3))  # smaller figure for Streamlit
+
+    # Plot the loss values
+    ax.plot(loss_values, label='Loss', color='blue')
+
+    # Customize the plot
+    ax.set_title('Loss Curve', fontsize=8)
+    ax.set_xlabel('Iterations', fontsize=6)
+    ax.set_ylabel('Loss', fontsize=6)
+    ax.legend(fontsize=5)
+    ax.grid(True)
+    ax.tick_params(axis='both', labelsize=5)
+
+    # Display the plot in Streamlit
+    st.pyplot(fig, use_container_width=False)
+    
+    #----------------------------------
+    
+    # Add a subheader
+    st.markdown(f"<h3 style='color: {subheader_color};'>Conclusion</h3>", unsafe_allow_html=True)
+    st.markdown("""
+                In this case study,
+
+                - We have learned how to build a neural network for a classification task.
+                - **Can you think of a reason why, we could get such low accuracy?**
+                - You can further analyze the misclassified points and see if there is a pattern or if they were outliers that our model could not identify.               
+                """)
+      
 except Exception as e:
     logging.error(f"An error occurred: {e}", exc_info=True)
     st.error("Something went wrong! Please check the logs or try again later.")
