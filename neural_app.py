@@ -453,13 +453,7 @@ try:
     st.write("Make predictions on train and check accuracy of the model")
     
     # make predictions on train
-    try:
-        ypred = MLP.predict(xtest_scaled)
-    except Exception as e:
-        logging.error(f"Error during prediction: {e}", exc_info=True)
-        st.error("Prediction failed. Please retrain or check the model.")
-        st.stop()
-
+    ypred_train = MLP.predict(xtrain_scaled)
     
     # check accuracy of the model
     model_train_ac = accuracy_score(ytrain, ypred_train)
@@ -469,7 +463,13 @@ try:
     
     st.write("Make predictions on test and check accuracy of the model")
     # make Predictions
-    ypred = MLP.predict(xtest_scaled)
+    try:
+        ypred = MLP.predict(xtest_scaled)
+    except Exception as e:
+        logging.error(f"Error during prediction: {e}", exc_info=True)
+        st.error("Prediction failed. Please retrain or check the model.")
+        st.stop()
+    
     # check accuracy of the model
     model_test_ac = accuracy_score(ytest, ypred)
     st.write(f"Accuracy of the test model: `{model_test_ac}`")
