@@ -1,13 +1,13 @@
 # Loading all the necessary packages
 
 import os
-os.environ['STREAMLIT_LOG_LEVEL'] = 'debug'
+os.environ['STREAMLIT_LOG_LEVEL'] = 'info'
 
 import logging
 
 # Configure logging manually again
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
@@ -128,7 +128,7 @@ try:
 
     # Show the first five rows
     st.markdown(f"<h3 style='color: {subheader_color};'>First Five Rows of the Dataset (After Transformation)</h3>", unsafe_allow_html=True)
-    st.dataframe(data.head(), use_container_width=False)
+    st.dataframe(data.head(), use_container_width=False) 
     
     #-------------------------------
     
@@ -138,67 +138,25 @@ try:
     data = data.drop(['Serial_No'], axis=1)
     st.dataframe(data.head(), use_container_width=False)
     
-    # Get the number of rows and columns
-    rows, columns = data.shape
+    #-------------------------------
 
-    # Create a small DataFrame
-    shape_df = pd.DataFrame({
-        'Rows': [rows],
-        'Columns': [columns]
-    })
+    # Display dataset shape
+    func.display_shape(data)
     
     #-------------------------------
 
-    # Display as a table
-    st.markdown(f"<h3 style='color: {subheader_color};'>Dataset Shape</h3>", unsafe_allow_html=True)
-
-    st.dataframe(shape_df, use_container_width=False)
-    
-    #-------------------------------
-    
-    # Display dataset info
-    st.markdown(f"<h3 style='color: {subheader_color};'>Dataset Info</h3>", unsafe_allow_html=True)
-
-    # Create a string buffer
-    buffer = io.StringIO()
-
-    # Capture the output of data.info() into the buffer
-    data.info(buf=buffer)
-
-    # Get the string from the buffer
-    info_str = buffer.getvalue()
-
-    # Display it as preformatted text
-    # st.text(info_str)
-    st.code(info_str, language='text')
+    # Display info
+    func.display_info(data)
     
     #-----------------------------------
     
-    # Display the 'SOP' column's unique values
-    st.markdown(f"<h3 style='color: {subheader_color};'>The 'SOP' Column's Unique Values</h3>", unsafe_allow_html=True)
-
-    # Get unique values
-    unique_values = data['SOP'].unique()
-
-    # Convert array to a string, separated by commas
-    unique_values_str = ", ".join(map(str, unique_values))
-
-    # Display as simple horizontal text
-    st.write(unique_values_str)
+    # Display unique values
+    func.display_unique_values(data, 'SOP')
     
     #-----------------------------------
     
-    # Display the 'CGPA' column's unique values
-    st.markdown(f"<h3 style='color: {subheader_color};'>The 'CGPA' Column's Unique Values</h3>", unsafe_allow_html=True)
-
-    # Get unique values
-    unique_values = data['CGPA'].unique()
-
-    # Convert array to a string, separated by commas
-    unique_values_str = ", ".join(map(str, unique_values))
-
-    # Display as simple horizontal text
-    st.write(unique_values_str)
+    # Display unique values
+    func.display_unique_values(data, 'CGPA')
     
     #-------------------------------------
     
@@ -235,46 +193,12 @@ try:
     
     # visualize the dataset
     st.markdown(f"<h3 style='color: {subheader_color};'>Visualize the dataset to see some patterns</h3>", unsafe_allow_html=True)
-    st.dataframe(data.corr(), use_container_width=False)
+    func.display_correlation(data)
     
     #---------------------------------------
-    
-    # Add a subheader
-    st.markdown(f"<h3 style='color: {subheader_color};'>Scatterplot of GRE Score vs TOEFL Score</h3>", unsafe_allow_html=True)
-
-    # Add a subheader
-    # st.subheader("Scatterplot of GRE Score vs TOEFL Score (Mini Version)")
-
-    # Create a figure
-    fig, ax = plt.subplots(figsize=(4, 2)) 
-
-    # Create the scatterplot with dots
-    sns.scatterplot(
-        data=data,
-        x='GRE_Score',
-        y='TOEFL_Score',
-        hue='Admit_Chance',
-        ax=ax,
-        s=8 
-    )
-
-    # Set labels
-    ax.set_xlabel("GRE Score", fontsize=6)
-    ax.set_ylabel("TOEFL Score", fontsize=6)
-
-    # Set title
-    ax.set_title("GRE vs TOEFL by Admit Chance", fontsize=8)
-
-    # Tick labels
-    ax.tick_params(axis='both', labelsize=5)
-
-    # Legend
-    legend = ax.legend(title='Admit Chance', fontsize=5, title_fontsize=6)
-    # Make legend background slightly transparent
-    legend.get_frame().set_alpha(0.7)  
-
-    # Display the plot in Streamlit
-    st.pyplot(fig, use_container_width=False)
+        
+    # Visualization
+    func.plot_scatter(data, 'GRE_Score', 'TOEFL_Score', 'Admit_Chance')
 
     #------------------------------------------
          
@@ -315,36 +239,14 @@ try:
                 """)
     
     #-------------------------------
-        
-    # Display dataset info
-    st.markdown(f"<h3 style='color: {subheader_color};'>Dataset Info</h3>", unsafe_allow_html=True)
-
-    # Create a string buffer
-    buffer = io.StringIO()
-
-    # Capture the output of data.info() into the buffer
-    data.info(buf=buffer)
-
-    # Get the string from the buffer
-    info_str = buffer.getvalue()
-
-    # Display it as preformatted text
-    # st.text(info_str)
-    st.code(info_str, language='text')
+    
+    # Display info
+    func.display_info(data)
     
     #---------------------------------
-               
-    # Display dataset info
-    st.markdown(f"<h3 style='color: {subheader_color};'>Get unique values for LOR</h3>", unsafe_allow_html=True)
     
-    # Get unique values
-    unique_values = data['LOR'].unique()
-
-    # Convert array to a string, separated by commas
-    unique_values_str = ", ".join(map(str, unique_values))
-
-    # Display as simple horizontal text
-    st.write(unique_values_str)
+        # Display unique values
+    func.display_unique_values(data, 'LOR')
         
     #---------------------------------
                  
@@ -355,18 +257,8 @@ try:
     data['University_Rating'] = data['University_Rating'].astype('object')
     data['Research'] = data['Research'].astype('object')
 
-    # Create a string buffer
-    buffer = io.StringIO()
-
-    # Capture the output of data.info() into the buffer
-    data.info(buf=buffer)
-
-    # Get the string from the buffer
-    info_str = buffer.getvalue()
-
-    # Display it as preformatted text
-    # st.text(info_str)
-    st.code(info_str, language='text')
+    # Display info
+    func.display_info(data)
     
     #-------------------------------
     
@@ -413,33 +305,9 @@ try:
     
     #-------------------------------
 
-    # Add a subheader
-    st.subheader("Fitting the Scaler (MinMaxScaler)")
-
-    # Initialize and fit the scaler
-    scaler = MinMaxScaler()
-    scaler.fit(xtrain)
-
-    # Get minimum and maximum values calculated by the scaler
-    data_min = scaler.data_min_
-    data_max = scaler.data_max_
-
-    # Create a nice message
-    scaler_message = f"""
-    Scaler fitted successfully!
-
-    **Features:**
-    - {', '.join(xtrain.columns)}
-
-    **Minimum Values (Before Scaling):**
-    - {', '.join(map(str, data_min))}
-
-    **Maximum Values (Before Scaling):**
-    - {', '.join(map(str, data_max))}
-    """
-
-    # Display the message in Streamlit
-    st.info(scaler_message)
+    # fitting the Scaler (MinMaxScaler)
+    
+    func.fit_scaler_and_display(xtrain)
     
     #------------------------------- 
 
@@ -568,7 +436,7 @@ try:
             batch_size=50,
             max_iter=200,
             random_state=123,
-            verbose=True    # <<< IMPORTANT
+            verbose=True    
         )
         MLP.fit(xtrain_scaled, ytrain)
 
@@ -599,56 +467,16 @@ try:
     
     #----------------------------------
 
-    # Calculate the confusion matrix
-    cm = confusion_matrix(ytest, ypred)
-
-    # Display it as a table
-    st.subheader("Confusion Matrix (Table)")
-    st.dataframe(pd.DataFrame(cm), use_container_width=False)
+    # Calculate and display the confusion matrix as a table and as a heatmap
     
-    
-    # Calculate the confusion matrix
-    cm = confusion_matrix(ytest, ypred)
-
-    # Create a heatmap
-    st.subheader("Confusion Matrix (Heatmap)")
-
-    fig, ax = plt.subplots(figsize=(2.4, 2))  # Small figure
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, ax=ax)
-
-    ax.set_xlabel('Predicted Labels', fontsize=6)
-    ax.set_ylabel('True Labels', fontsize=6)
-    ax.set_title('Confusion Matrix', fontsize=8)
-    ax.tick_params(axis='both', labelsize=5)
-
-    # Display the heatmap in Streamlit
-    st.pyplot(fig, use_container_width=False)
+    # After training and prediction
+    func.plot_confusion_matrix(ytest, ypred)
     
     #----------------------------------
     
-    # Plotting loss curve
-    # Add a subheader
-    st.markdown(f"<h3 style='color: {subheader_color};'>Loss Curve During Neural Network Training</h3>", unsafe_allow_html=True)
-
-    # Extract the loss values from the trained model
-    loss_values = MLP.loss_curve_
-
-    # Create a figure
-    fig, ax = plt.subplots(figsize=(5, 3))  # smaller figure for Streamlit
-
-    # Plot the loss values
-    ax.plot(loss_values, label='Loss', color='blue')
-
-    # Customize the plot
-    ax.set_title('Loss Curve', fontsize=8)
-    ax.set_xlabel('Iterations', fontsize=6)
-    ax.set_ylabel('Loss', fontsize=6)
-    ax.legend(fontsize=5)
-    ax.grid(True)
-    ax.tick_params(axis='both', labelsize=5)
-
-    # Display the plot in Streamlit
-    st.pyplot(fig, use_container_width=False)
+    # Plotting loss curve   
+    # After model training plot loss curve
+    func.plot_loss_curve(MLP)
     
     #----------------------------------
     

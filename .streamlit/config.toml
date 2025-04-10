@@ -14,4 +14,7 @@ codeBackgroundColor = "#f0d8d8"     # #f0d8d8
 font="sans serif"
 baseFontSize = 18  
 
+[logger]
+level = "info"
+
 
