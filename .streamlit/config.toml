@@ -6,8 +6,12 @@
 # font="sans serif"
 
 [theme]
-primaryColor="#871c1c"
-backgroundColor="#ffffed"
-secondaryBackgroundColor="#e3969c"
-textColor="#000"
+primaryColor="#871c1c"              # #871c1c
+backgroundColor="#ffffed"           # #ffffed
+secondaryBackgroundColor="#e3969c"  # #e3969c
+textColor="#000000"                 # #000000
+codeBackgroundColor = "#f0d8d8"     # #f0d8d8
 font="sans serif"
+baseFontSize = 18  
+
+

@@ -24,6 +24,15 @@ import seaborn as sns
 # import warnings library to manage warning messages
 import warnings
 import io
+# import train test split
+from sklearn.model_selection import train_test_split
+# import standard scaler
+from sklearn.preprocessing import MinMaxScaler
+# import the model
+from sklearn.neural_network import MLPClassifier
+# import evaluation metrics
+from sklearn.metrics import confusion_matrix, accuracy_score
+
 # import functions from app_module
 from app_module import functions as func
 
@@ -34,9 +43,8 @@ try:
     st.set_page_config(page_title="Loan Eligibility App", layout="wide")
 
     # Define color variables
-    header_color = "#1c8787"  # dark red color
-    # div_color = "#e3969c"  # dark pink
-    subheader_color = "#dc2e2e"  # dust rose
+    header_color = "#1c8787"  # dark green
+    subheader_color = "#dc2e2e"  # dark red
 
     # set the title of the Streamlit app
     st.markdown(f"<h1 style='color: {header_color};'>Project 4. Neural Networks</h1>", unsafe_allow_html=True)
@@ -95,10 +103,7 @@ try:
 
     st.write(f"The first five rows of the dataset")
     
-    # first_five_rows = data.head()
-    # st.dataframe(first_five_rows)
-    
-    # first_five_rows = 
+    # first five rows
     st.dataframe(data.head(), use_container_width=False)
     
     # add dataset and task explanation
@@ -230,7 +235,261 @@ try:
     # visualize the dataset
     st.markdown(f"<h3 style='color: {subheader_color};'>Visualize the dataset to see some patterns</h3>", unsafe_allow_html=True)
     st.dataframe(data.corr(), use_container_width=False)
+    
+    #---------------------------------------
+    
+    # Add a subheader
+    st.markdown(f"<h3 style='color: {subheader_color};'>Scatterplot of GRE Score vs TOEFL Score</h3>", unsafe_allow_html=True)
 
+    # Add a subheader
+    # st.subheader("Scatterplot of GRE Score vs TOEFL Score (Mini Version)")
+
+    # Create a figure
+    fig, ax = plt.subplots(figsize=(4, 2)) 
+
+    # Create the scatterplot with dots
+    sns.scatterplot(
+        data=data,
+        x='GRE_Score',
+        y='TOEFL_Score',
+        hue='Admit_Chance',
+        ax=ax,
+        s=8 
+    )
+
+    # Set labels
+    ax.set_xlabel("GRE Score", fontsize=6)
+    ax.set_ylabel("TOEFL Score", fontsize=6)
+
+    # Set title
+    ax.set_title("GRE vs TOEFL by Admit Chance", fontsize=8)
+
+    # Tick labels
+    ax.tick_params(axis='both', labelsize=5)
+
+    # Legend
+    legend = ax.legend(title='Admit Chance', fontsize=5, title_fontsize=6)
+    # Make legend background slightly transparent
+    legend.get_frame().set_alpha(0.7)  
+
+    # Display the plot in Streamlit
+    st.pyplot(fig, use_container_width=False)
+
+    #------------------------------------------
+         
+    # display observations
+    st.markdown("""
+                **Observations:**
+
+                - There is a linear relationship between GRE and TOEFL scores. 
+                This implies that students scoring high in one of them would score high in the other as well.
+                - We can see a distinction between students who were admitted (denoted by orange) 
+                vs those who were not admitted (denoted by blue). We can see that majority of students 
+                who were admitted have GRE score greater than 320, TOEFL score greater than 105.    
+                """)
+    
+    #----------------------------------------
+    
+    # Add a subheader
+    st.markdown(f"<h3 style='color: {subheader_color};'>Data Preparation</h3>", unsafe_allow_html=True)
+                 
+    # display task explanation
+    st.markdown("""
+                This dataset contains both numerical and categorical variables. 
+                We need to treat them first before we pass them onto the neural network. 
+                We will perform below pre-processing steps:
+
+                - One hot encoding of categorical variables
+                - Scaling numerical variables
+                
+                An important point to remember: Before we scale numerical variables, 
+                we would first split the dataset into train and test datasets and perform 
+                scaling separately. Otherwise, we would be leaking information from the test 
+                data to the train data and the resulting model might give a false sense of good performance. 
+                This is known as **data leakage** which we would want to avoid. 
+                
+                In this dataset, although the variable **University Rating** is encoded as a numerical variable. 
+                But it is denoting or signifying the quality of the university, so that is why this is 
+                a categorical variable and we would be creating one-hot encoding or dummy variables for this variable.
+                """)
+    
+    #-------------------------------
+        
+    # Display dataset info
+    st.markdown(f"<h3 style='color: {subheader_color};'>Dataset Info</h3>", unsafe_allow_html=True)
+
+    # Create a string buffer
+    buffer = io.StringIO()
+
+    # Capture the output of data.info() into the buffer
+    data.info(buf=buffer)
+
+    # Get the string from the buffer
+    info_str = buffer.getvalue()
+
+    # Display it as preformatted text
+    # st.text(info_str)
+    st.code(info_str, language='text')
+    
+    #---------------------------------
+               
+    # Display dataset info
+    st.markdown(f"<h3 style='color: {subheader_color};'>Get unique values for LOR</h3>", unsafe_allow_html=True)
+    
+    # Get unique values
+    unique_values = data['LOR'].unique()
+
+    # Convert array to a string, separated by commas
+    unique_values_str = ", ".join(map(str, unique_values))
+
+    # Display as simple horizontal text
+    st.write(unique_values_str)
+        
+    #---------------------------------
+                 
+    # Display dataset info
+    st.markdown(f"<h3 style='color: {subheader_color};'>Convert 'University_Rating' to categorical type. Dataset Info</h3>", unsafe_allow_html=True)    
+    
+    # convert University_Rating to categorical type
+    data['University_Rating'] = data['University_Rating'].astype('object')
+    data['Research'] = data['Research'].astype('object')
+
+    # Create a string buffer
+    buffer = io.StringIO()
+
+    # Capture the output of data.info() into the buffer
+    data.info(buf=buffer)
+
+    # Get the string from the buffer
+    info_str = buffer.getvalue()
+
+    # Display it as preformatted text
+    # st.text(info_str)
+    st.code(info_str, language='text')
+    
+    #-------------------------------
+    
+    st.write("The first five rows of the dataset:")    
+    # first five rows 
+    st.dataframe(data.head(), use_container_width=False)
+    
+    #--------------------------------
+    
+    # Dummy variables
+    st.markdown(f"<h3 style='color: {subheader_color};'>Create dummy variables for all 'object' type variables except 'Loan_Status'</h3>", unsafe_allow_html=True)    
+    st.write("The first two rows of the dataset:")
+    
+    # Create dummy variables for all 'object' type variables except 'Loan_Status'
+    clean_data = pd.get_dummies(data, columns=['University_Rating','Research'],dtype='int')
+    clean_data.head(2)
+    # first two rows of the dataset
+    st.dataframe(clean_data.head(2), use_container_width=False)
+    
+    #-------------------------------
+    
+    # Split the Data into Train and Test Sets
+    # add subheader
+    st.markdown(f"<h3 style='color: {subheader_color};'>Split the Data into Train and Test Sets</h3>", unsafe_allow_html=True)
+
+    # Separate features (X) and target variable (y)
+    x = clean_data.drop(['Admit_Chance'], axis=1)
+    y = clean_data['Admit_Chance']
+
+    # Split the data (Stratify on target to keep class balance)
+    xtrain, xtest, ytrain, ytest = train_test_split(
+        x, y, test_size=0.2, random_state=123, stratify=y
+    )
+
+    st.success("Data split into training and testing sets.")
+
+    # Scaling Numerical Variables
+    st.markdown(f"<h3 style='color: {subheader_color};'>Scaling Numerical Variables</h3>", unsafe_allow_html=True)
+
+    st.write(
+        "Perform scaling on the numerical variables separately for train and test sets. "
+        "We will use `.fit()` to calculate the mean and standard deviation, and `.transform()` to apply the scaling."
+    )
+
+    # Initialize the scaler
+    scaler = MinMaxScaler()
+
+    # Fit the scaler on training data only
+    scaler.fit(xtrain)
+
+    st.success("Scaler fitted to the training data.")
+
+    # Display Scaler Maximum Values
+    st.subheader("Scaler Data Max Values")
+
+    # Extract maximum values after scaling fit
+    scaler_data_max = scaler.data_max_
+
+    # Convert array to a comma-separated string
+    scaler_data_max_array = ", ".join(map(str, scaler_data_max))
+
+    # Display max values horizontally
+    st.write(scaler_data_max_array)
+
+    # Display Scaler Minimum Values
+    st.subheader("Scaler Data Min Values")
+
+    # Extract minimum values after scaling fit
+    scaler_data_min = scaler.data_min_
+
+    # Convert array to a comma-separated string
+    scaler_data_min_array = ", ".join(map(str, scaler_data_min))
+
+    # Display min values horizontally
+    st.write(scaler_data_min_array)
+    
+    
+    # Transform training and testing sets
+    xtrain_scaled = scaler.transform(xtrain)
+    xtest_scaled = scaler.transform(xtest)
+
+    # Convert scaled training set back into a DataFrame for better display
+    xtrain_scaled_df = pd.DataFrame(xtrain_scaled, columns=xtrain.columns)
+
+    # Show first few rows
+    st.subheader("First 5 Rows of Scaled Training Data")
+    st.dataframe(xtrain_scaled_df.head(), use_container_width=False)
+
+    # Show descriptive statistics of the scaled data
+    st.subheader("Statistics of Scaled Training Data")
+    st.dataframe(xtrain_scaled_df.describe(), use_container_width=False)
+    
+    #----------------------------------
+    
+    # Add a subheader
+    st.subheader("Distribution of GRE and TOEFL Scores (Before and After Scaling)")
+
+    # Create a 2x2 grid of plots
+    fig, axes = plt.subplots(2, 2, figsize=(8, 6))  # smaller figure
+
+    # Top-left: Original GRE Score
+    sns.histplot(data['GRE_Score'], kde=True, ax=axes[0, 0])
+    axes[0, 0].set_title("Original GRE Score", fontsize=8)
+    axes[0, 0].tick_params(axis='both', labelsize=6)
+
+    # Top-right: Scaled GRE Score (first feature in xtrain)
+    sns.histplot(xtrain.iloc[:, 0], kde=True, ax=axes[0, 1])
+
+    # Bottom-left: Original TOEFL Score
+    sns.histplot(data['TOEFL_Score'], kde=True, ax=axes[1, 0])
+    axes[1, 0].set_title("Original TOEFL Score", fontsize=8)
+    axes[1, 0].tick_params(axis='both', labelsize=6)
+
+    # Bottom-right: Scaled TOEFL Score (second feature in xtrain)
+    sns.histplot(xtrain.iloc[:, 1], kde=True, ax=axes[1, 1])
+
+    # Adjust layout to avoid overlap
+    plt.tight_layout()
+
+    # Display the plot in Streamlit
+    st.pyplot(fig)
+
+    
+    
        
 except Exception as e:
     logging.error(f"An error occurred: {e}", exc_info=True)

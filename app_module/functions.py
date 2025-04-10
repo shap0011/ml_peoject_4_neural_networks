@@ -22,6 +22,14 @@ import matplotlib.pyplot as plt
 # import seaborn library for data visualization
 import seaborn as sns
 import io
+# import train test split
+from sklearn.model_selection import train_test_split
+# import standard scaler
+from sklearn.preprocessing import MinMaxScaler
+# import the model
+from sklearn.neural_network import MLPClassifier
+# import evaluation metrics
+from sklearn.metrics import confusion_matrix, accuracy_score
 # import warnings library to manage warning messages
 import warnings
 
