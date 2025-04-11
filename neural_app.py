@@ -11,28 +11,12 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# import Streamlit for building web app
+import logging
 import streamlit as st
-#import numpy as np for numerical computing
-import numpy as np
-# import pandas for data manipulation
 import pandas as pd
-# import matplotlib library for creating plots
-import matplotlib.pyplot as plt
-# import seaborn library for data visualization
-import seaborn as sns
-# import warnings library to manage warning messages
-import warnings
-import io
-# import train test split
-from sklearn.model_selection import train_test_split
-# import standard scaler
 from sklearn.preprocessing import MinMaxScaler
-# import the model
 from sklearn.neural_network import MLPClassifier
-import contextlib
-# import evaluation metrics
-from sklearn.metrics import confusion_matrix, accuracy_score
+import warnings
 
 # import functions from app_module
 from app_module import functions as func
@@ -40,65 +24,26 @@ from app_module import functions as func
 warnings.filterwarnings("ignore")
 
 try:
+    
+    #-------- page setting, header, intro ---------------------
+    
     # Set page configuration
-    st.set_page_config(page_title="Loan Eligibility App", layout="wide")
+    st.set_page_config(page_title="🎓 UCLA Admission Prediction App", layout="wide")
 
     # Define color variables
     header_color = "#1c8787"  # dark green
-    subheader_color = "#dc2e2e"  # dark red
 
     # set the title of the Streamlit app
-    st.markdown(f"<h1 style='color: {header_color};'>Project 4. Neural Networks</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color: {header_color};'>🎓 UCLA Admission Prediction App</h1>", unsafe_allow_html=True)
 
-    # add subheader
-    st.markdown(f"<h2 style='color: {subheader_color};'>Predicting Chances of Admission at UCLA</h2>", unsafe_allow_html=True)
-    
-    # add project scope
-    st.markdown("""
-                ### Project Scope:
-                
-                The world is developing rapidly, and continuously looking for the best knowledge and experience among people. 
-                This motivates people all around the world to stand out in their jobs and look for higher degrees that can help 
-                them in improving their skills and knowledge. As a result, the number of students applying for Master's programs 
-                has increased substantially.
-
-                The current admission dataset was created for the prediction of admissions into the University of California, 
-                Los Angeles (UCLA). It was built to help students in shortlisting universities based on their profiles. 
-                The predicted output gives them a fair idea about their chances of getting accepted.
-
-                **Your Role:**
-
-                Build a classification model using **Neural Networks** to predict a student's chance of admission into UCLA.
-
-                **Specifics:**
-
-                - Target variable: Admit_Chance
-                - Machine Learning task: Classification model
-                - Input variables: Refer to data dictionary below
-                - Success Criteria: Accuracy of 90% and above                
-                """)
-    
-    # add data dictionary
-    st.markdown("""
-                ### Data Dictionary:
-                                
-                The dataset contains several parameters which are considered important during 
-                the application for Masters Programs. The parameters included are :
-
-                - **GRE_Score:** (out of 340)
-                - **TOEFL_Score:** (out of 120)
-                - **University_Rating:** It indicates the Bachelor University ranking (out of 5)
-                - **SOP:** Statement of Purpose Strength (out of 5)
-                - **LOR:** Letter of Recommendation Strength (out of 5)
-                - **CGPA:** Student's Undergraduate GPA(out of 10)
-                - **Research:** Whether the student has Research Experience (either 0 or 1)
-                - **Admit_Chance:** (ranging from 0 to 1)              
-                """)
+    #-------- the app overview -----------------------------
     
     
-    # add subheader
-    st.markdown(f"<h3 style='color: {subheader_color};'>Loading the libraries and the dataset</h3>", unsafe_allow_html=True)
-
+    #-------- user instructions -------------------------------
+    
+    
+    #-------- the dataset loading -----------------------------
+    
     # load the dataset from a CSV file located in the 'data' folder  
     try:
         data = func.load_data('data/admission.csv')
@@ -107,397 +52,90 @@ try:
         st.error("Failed to load the dataset. Please check the file path or format.")
         st.stop()
 
+    #-------- preprocessing data -----------------------------
 
-    st.write(f"The first five rows of the dataset")
-    
-    # first five rows
-    st.dataframe(data.head(), use_container_width=False)
-    
-    # add dataset and task explanation
-    st.markdown("""
-                - In the above dataset, the target variable is **Admit_Chance**
-                - To make this a classification task, let's convert the target variable into a categorical variable by using a threshold of 80%
-                - We are assuming that if **Admit_Chance** is more than 80% then chance of **Admit** would be 1 (i.e. yes) otherwise it would be 0 (i.e. no)           
-                """)
-    
-    #--------------------------------
-    
-    st.write("Convert the target variable into a categorical variable.")
-
-    # Converting the target variable into a categorical variable
     data['Admit_Chance'] = (data['Admit_Chance'] >= 0.8).astype(int)
-
-    # Confirm the transformation
-    st.success("Target variable 'Admit_Chance' converted: values are now 0 or 1.")
-    
-    #--------------------------------
-
-    # Show the first five rows
-    st.markdown(f"<h3 style='color: {subheader_color};'>First Five Rows of the Dataset (After Transformation)</h3>", unsafe_allow_html=True)
-    st.dataframe(data.head(), use_container_width=False) 
-    
-    #-------------------------------
-    
-    st.markdown(f"<h3 style='color: {subheader_color};'>Drop any unnecessary columns and check the info of the data</h3>", unsafe_allow_html=True)
-    
-    # Dropping columns
-    data = data.drop(['Serial_No'], axis=1)
-    st.dataframe(data.head(), use_container_width=False)
-    
-    #-------------------------------
-
-    # Display dataset shape
-    func.display_shape(data)
-    
-    #-------------------------------
-
-    # Display info
-    func.display_info(data)
-    
-    #-----------------------------------
-    
-    # Display unique values
-    func.display_unique_values(data, 'SOP')
-    
-    #-----------------------------------
-    
-    # Display unique values
-    func.display_unique_values(data, 'CGPA')
-    
-    #-------------------------------------
-    
-    # display observations
-    st.markdown("""
-                **Observations:**
-                
-                - There are 500 observations and 8 columns in the data
-                - All the columns are of numeric data type.
-                - There are no missing values in the data       
-                """)
-
-    #----------------------------------------
-    
-    # Display summary statistics of the data
-    st.markdown(f"<h3 style='color: {subheader_color};'>Summary statistics of the data</h3>", unsafe_allow_html=True)
-    st.dataframe(data.describe(), use_container_width=False)
-        
-    #-------------------------------------
-    
-    # display observations
-    st.markdown("""
-                **Observations:**
-
-                - The average GRE score of students applying for UCLA is ~316 out of 340. Some students scored full marks on GRE.
-                - The average TOEFL score of students applying for UCLA is ~107 out of 120. Some students scored full marks on TOEFL.
-                - There are students with all kinds of ratings for bachelor's University, SOP, and LOR - ratings ranging from 1 to 5.
-                - The average CGPA of students applying for UCLA is 8.57.
-                - Majority of students (~56%) have research experience.
-                - As per our assumption, on average 31% of students would get admission to UCLA.     
-                """)
-    
-    #----------------------------------------
-    
-    # visualize the dataset
-    st.markdown(f"<h3 style='color: {subheader_color};'>Visualize the dataset to see some patterns</h3>", unsafe_allow_html=True)
-    func.display_correlation(data)
-    
-    #---------------------------------------
-        
-    # Visualization
-    func.plot_scatter(data, 'GRE_Score', 'TOEFL_Score', 'Admit_Chance')
-
-    #------------------------------------------
-         
-    # display observations
-    st.markdown("""
-                **Observations:**
-
-                - There is a linear relationship between GRE and TOEFL scores. 
-                This implies that students scoring high in one of them would score high in the other as well.
-                - We can see a distinction between students who were admitted (denoted by orange) 
-                vs those who were not admitted (denoted by blue). We can see that majority of students 
-                who were admitted have GRE score greater than 320, TOEFL score greater than 105.    
-                """)
-    
-    #----------------------------------------
-    
-    # Add a subheader
-    st.markdown(f"<h3 style='color: {subheader_color};'>Data Preparation</h3>", unsafe_allow_html=True)
-                 
-    # display task explanation
-    st.markdown("""
-                This dataset contains both numerical and categorical variables. 
-                We need to treat them first before we pass them onto the neural network. 
-                We will perform below pre-processing steps:
-
-                - One hot encoding of categorical variables
-                - Scaling numerical variables
-                
-                An important point to remember: Before we scale numerical variables, 
-                we would first split the dataset into train and test datasets and perform 
-                scaling separately. Otherwise, we would be leaking information from the test 
-                data to the train data and the resulting model might give a false sense of good performance. 
-                This is known as **data leakage** which we would want to avoid. 
-                
-                In this dataset, although the variable **University Rating** is encoded as a numerical variable. 
-                But it is denoting or signifying the quality of the university, so that is why this is 
-                a categorical variable and we would be creating one-hot encoding or dummy variables for this variable.
-                """)
-    
-    #-------------------------------
-    
-    # Display info
-    func.display_info(data)
-    
-    #---------------------------------
-    
-        # Display unique values
-    func.display_unique_values(data, 'LOR')
-        
-    #---------------------------------
-                 
-    # Display dataset info
-    st.markdown(f"<h3 style='color: {subheader_color};'>Convert 'University_Rating' to categorical type. Dataset Info</h3>", unsafe_allow_html=True)    
-    
-    # convert University_Rating to categorical type
+    data = data.drop('Serial_No', axis=1)
     data['University_Rating'] = data['University_Rating'].astype('object')
     data['Research'] = data['Research'].astype('object')
+    clean_data = pd.get_dummies(data, columns=['University_Rating', 'Research'], dtype=int)
 
-    # Display info
-    func.display_info(data)
-    
-    #-------------------------------
-    
-    st.write("The first five rows of the dataset:")    
-    # first five rows 
-    st.dataframe(data.head(), use_container_width=False)
-    
-    #--------------------------------
-    
-    # Dummy variables
-    st.markdown(f"<h3 style='color: {subheader_color};'>Create dummy variables for all 'object' type variables except 'Loan_Status'</h3>", unsafe_allow_html=True)    
-    st.write("The first two rows of the dataset:")
-    
-    # Create dummy variables for all 'object' type variables except 'Loan_Status'
-    clean_data = pd.get_dummies(data, columns=['University_Rating','Research'],dtype='int')
-    clean_data.head(2)
-    # first two rows of the dataset
-    st.dataframe(clean_data.head(2), use_container_width=False)
-    
-    #-------------------------------
-    
-    # Split the Data into Train and Test Sets
-    # add subheader
-    st.markdown(f"<h3 style='color: {subheader_color};'>Split the Data into Train and Test Sets</h3>", unsafe_allow_html=True)
+    #-------- split and scale data -----------------------------
 
-    # Separate features (X) and target variable (y)
-    x = clean_data.drop(['Admit_Chance'], axis=1)
+    # Split features/target
+    X = clean_data.drop('Admit_Chance', axis=1)
     y = clean_data['Admit_Chance']
 
-    # Split the data (Stratify on target to keep class balance)
-    xtrain, xtest, ytrain, ytest = train_test_split(
-        x, y, test_size=0.2, random_state=123, stratify=y
-    )
-
-    st.success("Data split into training and testing sets.")
-
-    # Scaling Numerical Variables
-    st.markdown(f"<h3 style='color: {subheader_color};'>Scaling Numerical Variables</h3>", unsafe_allow_html=True)
-
-    st.write(
-        "Perform scaling on the numerical variables separately for train and test sets. "
-        "We will use `.fit()` to calculate the mean and standard deviation, and `.transform()` to apply the scaling."
-    )
-    
-    #-------------------------------
-
-    # fitting the Scaler (MinMaxScaler)
-    
-    func.fit_scaler_and_display(xtrain)
-    
-    #------------------------------- 
-
-    # Initialize the scaler
+    # Scale features
     scaler = MinMaxScaler()
+    X_scaled = scaler.fit_transform(X)
 
-    # Fit the scaler on training data only
-    scaler.fit(xtrain)
+    #-------- Train a Neural Network -----------------------------
 
-    st.success("Scaler fitted to the training data.")
+    # Train a Neural Network (MLP Classifier)
+    model = MLPClassifier(hidden_layer_sizes=(3, 3), batch_size=50, max_iter=200, random_state=123)
+    model.fit(X_scaled, y)
 
-    # Display Scaler Maximum Values
-    st.subheader("Scaler Data Max Values")
+    st.markdown("---")
+    st.subheader("📝 Enter Your Details to Predict Admission Chance")
 
-    # Extract maximum values after scaling fit
-    scaler_data_max = scaler.data_max_
+    with st.form(key="admission_form"):
+        col1, col2, col3 = st.columns(3)
 
-    # Convert array to a comma-separated string
-    scaler_data_max_array = ", ".join(map(str, scaler_data_max))
+        with col1:
+            GRE_Score = st.number_input("GRE Score (out of 340)", min_value=260, max_value=340, value=320)
+            TOEFL_Score = st.number_input("TOEFL Score (out of 120)", min_value=0, max_value=120, value=105)
 
-    # Display max values horizontally
-    st.write(scaler_data_max_array)
+        with col2:
+            SOP = st.slider("SOP Strength (1-5)", 1.0, 5.0, 3.0, step=0.5)
+            LOR = st.slider("LOR Strength (1-5)", 1.0, 5.0, 3.0, step=0.5)
 
-    # Display Scaler Minimum Values
-    st.subheader("Scaler Data Min Values")
+        with col3:
+            CGPA = st.number_input("CGPA (out of 10)", min_value=0.0, max_value=10.0, value=8.5)
+            Research = st.selectbox("Research Experience", options=[0, 1])
+            University_Rating = st.selectbox("University Rating (1-5)", options=[1, 2, 3, 4, 5])
 
-    # Extract minimum values after scaling fit
-    scaler_data_min = scaler.data_min_
+        submit_button = st.form_submit_button(label="Predict Admission")
 
-    # Convert array to a comma-separated string
-    scaler_data_min_array = ", ".join(map(str, scaler_data_min))
-
-    # Display min values horizontally
-    st.write(scaler_data_min_array)
+    #-------- after submit -----------------------------
     
-    
-    # Transform training and testing sets
-    xtrain_scaled = scaler.transform(xtrain)
-    xtest_scaled = scaler.transform(xtest)
-
-    # Convert scaled training set back into a DataFrame for better display
-    xtrain_scaled_df = pd.DataFrame(xtrain_scaled, columns=xtrain.columns)
-
-    # Show first few rows
-    st.subheader("First 5 Rows of Scaled Training Data")
-    st.dataframe(xtrain_scaled_df.head(), use_container_width=False)
-
-    # Show descriptive statistics of the scaled data
-    st.subheader("Statistics of Scaled Training Data")
-    st.dataframe(xtrain_scaled_df.describe(), use_container_width=False)
-    
-    #----------------------------------
-    
-    # Add a subheader
-    st.subheader("Distribution of GRE and TOEFL Scores (Before and After Scaling)")
-
-    # Create a 2x2 grid of plots
-    fig, axes = plt.subplots(2, 2, figsize=(4, 3)) 
-
-    # Top-left: Original GRE Score
-    sns.histplot(data['GRE_Score'], kde=True, ax=axes[0, 0])
-    axes[0, 0].set_title("Original GRE Score", fontsize=6)
-    axes[0, 0].set_xlabel("GRE_Score", fontsize=4)   
-    axes[0, 0].set_ylabel("Count", fontsize=4)        
-    axes[0, 0].tick_params(axis='both', labelsize=3)  
-
-    # Top-right: Scaled GRE Score
-    sns.histplot(xtrain.iloc[:, 0], kde=True, ax=axes[0, 1])
-    axes[0, 1].set_title("Scaled GRE Score", fontsize=6)
-    axes[0, 1].set_xlabel("GRE_Score", fontsize=4)
-    axes[0, 1].set_ylabel("Count", fontsize=4)
-    axes[0, 1].tick_params(axis='both', labelsize=4)
-
-    # Bottom-left: Original TOEFL Score
-    sns.histplot(data['TOEFL_Score'], kde=True, ax=axes[1, 0])
-    axes[1, 0].set_title("Original TOEFL Score", fontsize=6)
-    axes[1, 0].set_xlabel("TOEFL_Score", fontsize=4)
-    axes[1, 0].set_ylabel("Count", fontsize=4)
-    axes[1, 0].tick_params(axis='both', labelsize=4)
-
-    # Bottom-right: Scaled TOEFL Score
-    sns.histplot(xtrain.iloc[:, 1], kde=True, ax=axes[1, 1])
-    axes[1, 1].set_title("Scaled TOEFL Score", fontsize=6)
-    axes[1, 1].set_xlabel("TOEFL_Score", fontsize=4)
-    axes[1, 1].set_ylabel("Count", fontsize=4)
-    axes[1, 1].tick_params(axis='both', labelsize=4)
-
-    # Adjust layout to avoid overlap
-    plt.tight_layout()
-
-    # Display the plot in Streamlit
-    st.pyplot(fig, use_container_width=False)
-
-    #---------------------------
-    
-    # Scaling Numerical Variables
-    st.markdown(f"<h3 style='color: {subheader_color};'>Neural Network Architecture</h3>", unsafe_allow_html=True)
-    
-    st.markdown("""
-                In neural networks, there are so many hyper-parameters that you can play around with and tune the network to get the best results. Some of them are -
-
-                1. Number of hidden layers
-                2. Number of neurons in each hidden layer
-                3. Activation functions in hidden layers
-                4. Batch size
-                5. Learning rate
-                6. Dropout
-                """)
-        
-    st.write("Let's build a feed forward neural network with 2 hidden layers. Remember, always start small.")
-
-    # Add subheader
-    st.markdown(f"<h3 style='color: {subheader_color};'>Training the model</h3>", unsafe_allow_html=True)
-    st.write("Feedforward Neural Network Training (MLP Classifier)")
-
-    # Create a string buffer to capture output
-    buffer = io.StringIO()
-
-    # Train the model and capture the training output
-    with contextlib.redirect_stdout(buffer):
+    if submit_button:
         try:
-            buffer = io.StringIO()
-            with contextlib.redirect_stdout(buffer):
-                MLP = MLPClassifier(hidden_layer_sizes=(3, 3), batch_size=50, max_iter=200, random_state=123, verbose=True)
-                MLP.fit(xtrain_scaled, ytrain)
-            # Get the captured training output
-            training_log = buffer.getvalue()
-            # Display the training log in Streamlit
-            st.code(training_log, language="text")
+            # Create user input DataFrame
+            user_input = pd.DataFrame({
+                'GRE_Score': [GRE_Score],
+                'TOEFL_Score': [TOEFL_Score],
+                'SOP': [SOP],
+                'LOR': [LOR],
+                'CGPA': [CGPA],
+                f'University_Rating_{University_Rating}': [1],
+                f'Research_{Research}': [1]
+            })
+
+            # Add missing dummy columns
+            for col in X.columns:
+                if col not in user_input.columns:
+                    user_input[col] = 0
+
+            # Reorder columns
+            user_input = user_input[X.columns]
+
+            # Scale user input
+            user_input_scaled = scaler.transform(user_input)
+
+            # Predict
+            prediction = model.predict(user_input_scaled)[0]
+
+    #-------- Display result -----------------------------
+
+            if prediction == 1:
+                st.success("✅ Congratulations! Based on your profile, you have a good chance of being admitted to UCLA.")
+            else:
+                st.error("❌ Unfortunately, your profile shows a low chance of admission. Consider improving some aspects!")
+
         except Exception as e:
-            logging.error(f"Error during model training: {e}", exc_info=True)
-            st.error("Failed to train the model. Please check the input data or model parameters.")
-            st.stop()
-    
-    #-------------------------------
-    
-    st.write("Make predictions on train and check accuracy of the model")
-    
-    # make predictions on train
-    ypred_train = MLP.predict(xtrain_scaled)
-    
-    # check accuracy of the model
-    model_train_ac = accuracy_score(ytrain, ypred_train)
-    st.write(f"Accuracy of the train model: `{model_train_ac}`")
-    
-    #---------------------------------------
-    
-    st.write("Make predictions on test and check accuracy of the model")
-    # make Predictions
-    try:
-        ypred = MLP.predict(xtest_scaled)
-    except Exception as e:
-        logging.error(f"Error during prediction: {e}", exc_info=True)
-        st.error("Prediction failed. Please retrain or check the model.")
-        st.stop()
-    
-    # check accuracy of the model
-    model_test_ac = accuracy_score(ytest, ypred)
-    st.write(f"Accuracy of the test model: `{model_test_ac}`")
-    
-    #----------------------------------
-
-    # Calculate and display the confusion matrix as a table and as a heatmap
-    
-    # After training and prediction
-    func.plot_confusion_matrix(ytest, ypred)
-    
-    #----------------------------------
-    
-    # Plotting loss curve   
-    # After model training plot loss curve
-    func.plot_loss_curve(MLP)
-    
-    #----------------------------------
-    
-    # Add a subheader
-    st.markdown(f"<h3 style='color: {subheader_color};'>Conclusion</h3>", unsafe_allow_html=True)
-    st.markdown("""
-                In this case study,
-
-                - We have learned how to build a neural network for a classification task.
-                - **Can you think of a reason why, we could get such low accuracy?**
-                - You can further analyze the misclassified points and see if there is a pattern or if they were outliers that our model could not identify.               
-                """)
+            logging.error(f"Prediction failed: {e}", exc_info=True)
+            st.error("Prediction failed. Please check your inputs or try again.")
       
 except Exception as e:
     logging.error(f"An error occurred: {e}", exc_info=True)
