@@ -46,13 +46,9 @@ The dataset contains the following features:
 | Admit_Chance	     | Probability of admission (0 to 1)               |
 
 ## App Features
-- **Data Exploration:**
+- **Data Loading:**
 
-    - View raw data
-
-    - See summary statistics
-
-    - Analyze unique values
+    - Load admission dataset
 
 - **Data Preparation:**
 
@@ -71,12 +67,6 @@ The dataset contains the following features:
     - Batch Size: 50
 
     - Max Iterations: 200
-
-- **Model Evaluation:**
-
-    - Display training log
-
-    - Show training and test accuracy
 
 - **Error Handling:**
 
