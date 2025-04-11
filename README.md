@@ -1,4 +1,4 @@
-# Predicting Chances of Admission at UCLA - Neural Networks Project
+# UCLA Admission Prediction App
 
 This project builds a **classification model** using **Neural Networks (MLPClassifier)** to predict the **chances of admission** into the **University of California, Los Angeles (UCLA)** based on a student's academic and research profile.
 
@@ -6,13 +6,9 @@ It is developed as a **Streamlit Web App** that walks through the entire Machine
 
 - Data Loading and Cleaning
 
-- Data Visualization
-
 - Data Preparation
 
 - Model Building (Neural Network)
-
-- Model Evaluation (Confusion Matrix, Loss Curve)
 
 ## Technologies Used
 
@@ -58,8 +54,6 @@ The dataset contains the following features:
 
     - Analyze unique values
 
-    - View correlation matrix and scatterplots
-
 - **Data Preparation:**
 
     - Target transformation (`Admit_Chance` → categorical: 0 or 1)
@@ -83,10 +77,6 @@ The dataset contains the following features:
     - Display training log
 
     - Show training and test accuracy
-
-    - Plot **Confusion Matrix** (table + heatmap)
-
-    - Plot **Loss Curve** during training
 
 - **Error Handling:**
 
