@@ -28,7 +28,7 @@ try:
     #-------- page setting, header, intro ---------------------
     
     # Set page configuration
-    st.set_page_config(page_title="🎓 UCLA Admission Prediction App", layout="wide")
+    st.set_page_config(page_title="🎓 UCLA Admission Prediction App", layout="centered")
 
     # Define color variables
     header_color = "#1c8787"  # dark green
@@ -38,9 +38,49 @@ try:
 
     #-------- the app overview -----------------------------
     
+    st.markdown("""
+    ### Overview
+    Welcome to the **UCLA Admission Prediction App!**
+
+    This application helps you predict your chances of admission to the University of California, 
+    Los Angeles (UCLA) based on your academic profile. Using a trained **Neural Network model**, 
+    the app estimates whether your profile meets the typical admission standards.
+
+    The model has been trained on real-world student application data, considering important factors like GRE scores, TOEFL scores, undergraduate performance (CGPA), and research experience.
+    This tool can give you a quick estimate to guide your expectations and help you identify areas for improvement.
+    """)
     
     #-------- user instructions -------------------------------
     
+    st.markdown("""
+    ### How to Use This App
+
+    1. **Enter Your Academic Details**:
+
+        - **GRE Score** (out of 340)
+
+        - **TOEFL Score** (out of 120)
+
+        - **SOP Strength** (rate your Statement of Purpose from 1 to 5)
+
+        - **LOR Strength** (rate your Letters of Recommendation from 1 to 5)
+
+        - **CGPA** (on a scale of 0 to 10)
+
+        - **Research Experience** (select 1 if you have research experience, otherwise 0)
+
+        - **University Rating** (rate your undergraduate university from 1 to 5)
+
+    2. **Click "Predict Admission"**:
+
+        - The app will process your input, scale the values, and predict your chance of admission.
+
+    3. **View Your Result**:
+
+        - ✅ If your profile indicates a **high chance of admission**, you'll see a success message.
+
+        - ❌ If the model predicts a **low chance of admission**, you'll receive a recommendation to consider improving some aspects.
+    """)
     
     #-------- the dataset loading -----------------------------
     
