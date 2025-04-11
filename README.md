@@ -127,7 +127,7 @@ streamlit run neural_app.py
 
 ## Deployment
 The app is also deployed on Streamlit Cloud.
-Click [![Here](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ah6gkd6fyplwc6qz9du7hj.streamlit.app/) to view the live app.
+Click [![Here](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ucla-admission-prediction-app-shap0011.streamlit.app/) to view the live app.
 
 ## Author
 Name: Olga Durham
